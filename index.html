@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function codificar(mensagem, chave) {
+            return transformarMensagem(mensagem, chave);
+        }
+        function decodificar(mensagem, chave) {
+            // Calcula a matriz inversa da chave
+            const inversa = matrizInversa(chave);
+            return transformarMensagem(mensagem, inversa);
+        }
+        function transformarMensagem(mensagem, chave) {
+            const tamanhoBloco = chave.length;
+            let resultado = "";
+
+            // Converte a mensagem para números (A=0, B=1, ..., Z=25)
+            const numeros = mensagem.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
+
+            // Divide a mensagem em blocos do tamanho da chave
+            for (let i = 0; i < numeros.length; i += tamanhoBloco) {
+                const bloco = numeros.slice(i, i + tamanhoBloco);
+
+                // Multiplica o bloco pela chave
+                const codificado = multiplicarMatrizes([bloco], chave);
+
+                // Converte os números de volta para letras
+                codificado.forEach(num => {
+                    resultado += String.fromCharCode((num % 26) + 65);
+                });
+            }
+
+            return resultado;
+        }
+        function multiplicarMatrizes(matriz1, matriz2) {
+            const resultado = [];
+            for (let i = 0; i < matriz1.length; i++) {
+                resultado[i] = [];
+                for (let j = 0; j < matriz2[0].length; j++) {
+                    let soma = 0;
+                    for (let k = 0; k < matriz1[0].length; k++) {
+                        soma += matriz1[i][k] * matriz2[k][j];
+                    }
+                    resultado[i][j] = soma;
+                }
+            }
+            return resultado.flat();
+        }
+        function matrizInversa(matriz) {
+            const det = determinante(matriz);
+            const adjunta = matrizAdjunta(matriz);
+            const inversa = adjunta.map(linha => linha.map(valor => valor / det));
+            return inversa;
+        }
+        function determinante(matriz) {
+            if (matriz.length === 2) {
+                return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0];
+            } else if (matriz.length === 3) {
+                return (
+                    matriz[0][0] * (matriz[1][1] * matriz[2][2] - matriz[1][2] * matriz[2][1]) -
+                    matriz[0][1] * (matriz[1][0] * matriz[2][2] - matriz[1][2] * matriz[2][0]) +
+                    matriz[0][2] * (matriz[1][0] * matriz[2][1] - matriz[1][1] * matriz[2][0])
+                );
+            } else {
+                throw new Error("Matriz não suportada. Use matrizes 2x2 ou 3x3.");
+            }
+        }
+        function matrizAdjunta(matriz) {
+            if (matriz.length === 2) {
+                return [
+                    [matriz[1][1], -matriz[0][1]],
+                    [-matriz[1][0], matriz[0][0]]
+                ];
+            } else if (matriz.length === 3) {
+                const cofatores = [
+                    [
+                        matriz[1][1] * matriz[2][2] - matriz[1][2] * matriz[2][1],
+                        -(matriz[1][0] * matriz[2][2] - matriz[1][2] * matriz[2][0]),
+                        matriz[1][0] * matriz[2][1] - matriz[1][1] * matriz[2][0]
+                    ],
+                    [
+                        -(matriz[0][1] * matriz[2][2] - matriz[0][2] * matriz[2][1]),
+                        matriz[0][0] * matriz[2][2] - matriz[0][2] * matriz[2][0],
+                        -(matriz[0][0] * matriz[2][1] - matriz[0][1] * matriz[2][0])
+                    ],
+                    [
+                        matriz[0][1] * matriz[1][2] - matriz[0][2] * matriz[1][1],
+                        -(matriz[0][0] * matriz[1][2] - matriz[0][2] * matriz[1][0]),
+                        matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0]
+                    ]
+                ];
+                return cofatores;
+            } else {
+                throw new Error("Matriz não suportada. Use matrizes 2x2 ou 3x3.");
+            }
+        }
+
+
+
+
+
+
+
+        function cifraDeHill(mensagem, chave) {
+            const resposta = prompt("Deseja codificar a mensagem? (sim/não)").toLowerCase();
+        
+            return resposta === "sim" ? codificar(mensagem,chave) : decodificar(mensagem,chave);
+        }
+
+    // Exemplo de uso:
+    const mensagem = "HELP";
+    const chave = [
+        [6, 24, 1],
+        [13, 16, 10],
+        [20, 17, 15]
+    ];
+
+    const resultado = cifraDeHill(mensagem, chave);
+    console.log(resultado);
+    </script>
+</body>
+</html>
