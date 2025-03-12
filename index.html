@@ -8,33 +8,43 @@
 <body>
     <script>
         function codificar(mensagem, chave) {
+            console.log("codificando...")
             return transformarMensagem(mensagem, chave);
         }
         function decodificar(mensagem, chave) {
             // Calcula a matriz inversa da chave
+            console.log("invertendo a chave...")
             const inversa = matrizInversa(chave);
+            console.log(inversa)
             return transformarMensagem(mensagem, inversa);
         }
         function transformarMensagem(mensagem, chave) {
+            console.log("mensagem: "+mensagem)
             const tamanhoBloco = chave.length;
+            console.log("tamanho dos blocos: "+tamanhoBloco)
             let resultado = "";
 
             // Converte a mensagem para números (A=0, B=1, ..., Z=25)
+            
             const numeros = mensagem.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
+            const letras = mensagem.toUpperCase().split('')
 
             // Divide a mensagem em blocos do tamanho da chave
             for (let i = 0; i < numeros.length; i += tamanhoBloco) {
                 const bloco = numeros.slice(i, i + tamanhoBloco);
-
+                console.log(`bloco ${i>0?i-(tamanhoBloco-1):i}: ${letras.slice(i,i+tamanhoBloco)}`)
+                console.log('em numeros:')
+                console.log(bloco)
                 // Multiplica o bloco pela chave
                 const codificado = multiplicarMatrizes([bloco], chave);
+                console.log(`bloco ${i>0?i-(tamanhoBloco-1):i} multiplicado pela matriz chave: ${codificado}`)
 
                 // Converte os números de volta para letras
                 codificado.forEach(num => {
                     resultado += String.fromCharCode((num % 26) + 65);
                 });
             }
-
+            console.log("mensagem codificada: "+resultado)
             return resultado;
         }
         function multiplicarMatrizes(matriz1, matriz2) {
@@ -45,6 +55,7 @@
                     let soma = 0;
                     for (let k = 0; k < matriz1[0].length; k++) {
                         soma += matriz1[i][k] * matriz2[k][j];
+
                     }
                     resultado[i][j] = soma;
                 }
@@ -53,7 +64,10 @@
         }
         function matrizInversa(matriz) {
             const det = determinante(matriz);
+            console.log("determinante: "+det)
             const adjunta = matrizAdjunta(matriz);
+            console.log("matriz adjunta: ")
+            console.log(adjunta)
             const inversa = adjunta.map(linha => linha.map(valor => valor / det));
             return inversa;
         }
@@ -114,14 +128,14 @@
 
     // Exemplo de uso:
     const mensagem = "HELP";
+    const codigo = "CDEMWP"
     const chave = [
         [6, 24, 1],
         [13, 16, 10],
         [20, 17, 15]
     ];
 
-    const resultado = cifraDeHill(mensagem, chave);
-    console.log(resultado);
+    const resultado = cifraDeHill(codigo, chave);
     </script>
 </body>
 </html>
