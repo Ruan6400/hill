@@ -49,10 +49,22 @@
         }
         function multiplicarMatrizes(matriz1, matriz2) {
             const resultado = [];
+
+            //pra cada linha da m1
             for (let i = 0; i < matriz1.length; i++) {
+
+                //deixa a linha atual zerada
                 resultado[i] = [];
+
+
+                //percorrer até o limite da primeira linha da m2
                 for (let j = 0; j < matriz2[0].length; j++) {
+                    
+                    //zerar variavel de soma do elemento
                     let soma = 0;
+                    
+
+
                     for (let k = 0; k < matriz1[0].length; k++) {
                         soma += matriz1[i][k] * matriz2[k][j];
 
@@ -126,14 +138,14 @@
             return resposta === "sim" ? codificar(mensagem,chave) : decodificar(mensagem,chave);
         }
 
-    // Exemplo de uso:
-    const mensagem = "HELP";
-    const codigo = "CDEMWP"
-    const chave = [
-        [6, 24, 1],
-        [13, 16, 10],
-        [20, 17, 15]
-    ];
+        // Exemplo de uso:
+        const mensagem = "HELP";
+        const codigo = "CDEMWP"
+        const chave = [
+            [6, 24, 1],
+            [13, 16, 10],
+            [20, 17, 15]
+        ];
 
     const resultado = cifraDeHill(codigo, chave);
     </script>
