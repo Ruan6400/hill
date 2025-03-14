@@ -8,6 +8,7 @@
 <body>
     <script>
         let blocos = []
+        const chave = [[5,8],[17,3]]
         function dividirblocos(array){
             if(array.length<2){
                 return;
@@ -62,9 +63,25 @@
         
         
         
-
+        function codificar(codigo,chave){
+            let codificado =""
+            blocos=[]
+            const numeros = codigo.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
+            if(numeros.length%2==1){numeros.push(24)}
+            dividirblocos(numeros)
+            let matrizMultiplicada = []
+            blocos.forEach(bloco=>{matrizMultiplicada.push(multiplicarMatrizes(bloco,chave))})
+            matrizMultiplicada.forEach((linha,i)=>linha.forEach((valor,j)=>{
+                matrizMultiplicada[i][j] = mod26(valor)
+            }))
+            matrizMultiplicada.forEach(linha=>linha.forEach(valor=>{
+                codificado += String.fromCharCode((valor % 26) + 65)
+            }))
+            return codificado
+        }
         function decodificar(codigo,chave){
             let decodificado =""
+            blocos=[]
             const numeros = codigo.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
             if(numeros.length%2==1){numeros.push(25)}
             dividirblocos(numeros)
@@ -82,10 +99,13 @@
             return decodificado;
         }
 
-        console.log(decodificar('zhxxuc',[
-            [5,8],
-            [17,3]
-        ]))
+
+        let a = codificar("fatec",chave)
+        console.log(a)
+
+        let b = decodificar(a,chave)
+        console.log(b)
+
     </script>
 </body>
 </html>
