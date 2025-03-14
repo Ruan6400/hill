@@ -7,147 +7,85 @@
 </head>
 <body>
     <script>
-        function codificar(mensagem, chave) {
-            console.log("codificando...")
-            return transformarMensagem(mensagem, chave);
-        }
-        function decodificar(mensagem, chave) {
-            // Calcula a matriz inversa da chave
-            console.log("invertendo a chave...")
-            const inversa = matrizInversa(chave);
-            console.log(inversa)
-            return transformarMensagem(mensagem, inversa);
-        }
-        function transformarMensagem(mensagem, chave) {
-            console.log("mensagem: "+mensagem)
-            const tamanhoBloco = chave.length;
-            console.log("tamanho dos blocos: "+tamanhoBloco)
-            let resultado = "";
-
-            // Converte a mensagem para números (A=0, B=1, ..., Z=25)
-            
-            const numeros = mensagem.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
-            const letras = mensagem.toUpperCase().split('')
-
-            // Divide a mensagem em blocos do tamanho da chave
-            for (let i = 0; i < numeros.length; i += tamanhoBloco) {
-                const bloco = numeros.slice(i, i + tamanhoBloco);
-                console.log(`bloco ${i>0?i-(tamanhoBloco-1):i}: ${letras.slice(i,i+tamanhoBloco)}`)
-                console.log('em numeros:')
-                console.log(bloco)
-                // Multiplica o bloco pela chave
-                const codificado = multiplicarMatrizes([bloco], chave);
-                console.log(`bloco ${i>0?i-(tamanhoBloco-1):i} multiplicado pela matriz chave: ${codificado}`)
-
-                // Converte os números de volta para letras
-                codificado.forEach(num => {
-                    resultado += String.fromCharCode((num % 26) + 65);
-                });
+        let blocos = []
+        function dividirblocos(array){
+            if(array.length<2){
+                return;
             }
-            console.log("mensagem codificada: "+resultado)
-            return resultado;
+
+            let [val1,val2, ...resto] = array;
+            blocos.push([val1,val2])
+            dividirblocos(resto)
+
+        }
+
+        function determinante2x2(matriz){
+            return (matriz[0][0]*matriz[1][1]) - (matriz[0][1]*matriz[1][0])
+        }
+        function mod26(numero){
+            if(numero>=0&&numero<26){return numero;}
+            if(numero>=26){return numero%26}
+            if(numero<0){
+                let novoMod = numero;
+                while(novoMod<0){
+                    novoMod+=26
+                }
+                return novoMod
+            }
+        }
+        function modInv26(numero,numeroteste){
+            const resultado_teste = (numero*numeroteste)%26
+            return resultado_teste==1?numeroteste:modInv26(numero,numeroteste+1)
+        }
+        function matrizAdjunta(matriz){
+            return [
+                [matriz[1][1], -matriz[0][1]],
+                [-matriz[1][0], matriz[0][0]]
+            ];
+        }
+        function multiplicarMatrizesm26(matriz,inv26){
+            for (let index = 0; index < matriz.length; index++) {
+                for (let i = 0; i < matriz[index].length; i++) {
+                    matriz[index][i] = mod26(matriz[index][i]*inv26)
+                }
+                
+            }
+            return matriz;
         }
         function multiplicarMatrizes(matriz1, matriz2) {
-            const resultado = [];
-
-            //pra cada linha da m1
-            for (let i = 0; i < matriz1.length; i++) {
-
-                //deixa a linha atual zerada
-                resultado[i] = [];
-
-
-                //percorrer até o limite da primeira linha da m2
-                for (let j = 0; j < matriz2[0].length; j++) {
-                    
-                    //zerar variavel de soma do elemento
-                    let soma = 0;
-                    
-
-
-                    for (let k = 0; k < matriz1[0].length; k++) {
-                        soma += matriz1[i][k] * matriz2[k][j];
-
-                    }
-                    resultado[i][j] = soma;
-                }
-            }
-            return resultado.flat();
+            const resultado = [
+                mod26(matriz1[0]*matriz2[0][0]+matriz1[1]*matriz2[0][1]),
+                mod26(matriz1[0]*matriz2[1][0]+matriz1[1]*matriz2[1][1])
+            ]
+            return resultado;
         }
-        function matrizInversa(matriz) {
-            const det = determinante(matriz);
-            console.log("determinante: "+det)
-            const adjunta = matrizAdjunta(matriz);
-            console.log("matriz adjunta: ")
-            console.log(adjunta)
-            const inversa = adjunta.map(linha => linha.map(valor => valor / det));
-            return inversa;
-        }
-        function determinante(matriz) {
-            if (matriz.length === 2) {
-                return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0];
-            } else if (matriz.length === 3) {
-                return (
-                    matriz[0][0] * (matriz[1][1] * matriz[2][2] - matriz[1][2] * matriz[2][1]) -
-                    matriz[0][1] * (matriz[1][0] * matriz[2][2] - matriz[1][2] * matriz[2][0]) +
-                    matriz[0][2] * (matriz[1][0] * matriz[2][1] - matriz[1][1] * matriz[2][0])
-                );
-            } else {
-                throw new Error("Matriz não suportada. Use matrizes 2x2 ou 3x3.");
-            }
-        }
-        function matrizAdjunta(matriz) {
-            if (matriz.length === 2) {
-                return [
-                    [matriz[1][1], -matriz[0][1]],
-                    [-matriz[1][0], matriz[0][0]]
-                ];
-            } else if (matriz.length === 3) {
-                const cofatores = [
-                    [
-                        matriz[1][1] * matriz[2][2] - matriz[1][2] * matriz[2][1],
-                        -(matriz[1][0] * matriz[2][2] - matriz[1][2] * matriz[2][0]),
-                        matriz[1][0] * matriz[2][1] - matriz[1][1] * matriz[2][0]
-                    ],
-                    [
-                        -(matriz[0][1] * matriz[2][2] - matriz[0][2] * matriz[2][1]),
-                        matriz[0][0] * matriz[2][2] - matriz[0][2] * matriz[2][0],
-                        -(matriz[0][0] * matriz[2][1] - matriz[0][1] * matriz[2][0])
-                    ],
-                    [
-                        matriz[0][1] * matriz[1][2] - matriz[0][2] * matriz[1][1],
-                        -(matriz[0][0] * matriz[1][2] - matriz[0][2] * matriz[1][0]),
-                        matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0]
-                    ]
-                ];
-                return cofatores;
-            } else {
-                throw new Error("Matriz não suportada. Use matrizes 2x2 ou 3x3.");
-            }
-        }
-
-
-
-
-
-
-
-        function cifraDeHill(mensagem, chave) {
-            const resposta = prompt("Deseja codificar a mensagem? (sim/não)").toLowerCase();
         
-            return resposta === "sim" ? codificar(mensagem,chave) : decodificar(mensagem,chave);
+        
+        
+
+        function decodificar(codigo,chave){
+            let decodificado =""
+            const numeros = codigo.toUpperCase().split('').map(char => char.charCodeAt(0) - 65);
+            if(numeros.length%2==1){numeros.push(25)}
+            dividirblocos(numeros)
+            const det = determinante2x2(chave)
+            const m26 = mod26(det)
+            const inv26 = modInv26(m26,0)
+            const adjunta = matrizAdjunta(chave)
+            const recodificado = multiplicarMatrizesm26(adjunta,inv26)
+            const blocosRecodificados = []
+            blocos.forEach(bloco=>{blocosRecodificados.push(multiplicarMatrizes(bloco,recodificado))})
+            codigo =""
+            blocosRecodificados.forEach(bloco=>{
+                bloco.forEach(numero=>{decodificado += String.fromCharCode((numero % 26) + 65);})
+            })
+            return decodificado;
         }
 
-        // Exemplo de uso:
-        const mensagem = "HELP";
-        const codigo = "CDEMWP"
-        const chave = [
-            [6, 24, 1],
-            [13, 16, 10],
-            [20, 17, 15]
-        ];
-
-    const resultado = cifraDeHill(codigo, chave);
+        console.log(decodificar('zhxxuc',[
+            [5,8],
+            [17,3]
+        ]))
     </script>
 </body>
 </html>
